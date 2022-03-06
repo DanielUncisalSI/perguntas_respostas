@@ -1,4 +1,4 @@
-//Iniciar a aula 46
+//Iniciar a aula 50
 //instalação necessária
 //nodemon, express, ejs(renderizar html), bodyparser(pegar os dados do html), 
 //sequelize + mysql2 (conexão banco de dados)
@@ -30,7 +30,9 @@ app.use(bodyParser.json());
 
 //rotas
 app.get("/",(req, res) => {
-   Pergunta.findAll({raw: true}).then(perguntas => {
+   Pergunta.findAll({raw: true, order:[
+       ['id','DESC']
+   ]}).then(perguntas => {
        res.render('index',{
            perguntas: perguntas
        })
@@ -51,4 +53,17 @@ app.post('/salvarpergunta',(req, res) => {
     });
 });
 
+app.get("/pergunta/:id", (req, res)=>{
+    var id = req.params.id;
+    Pergunta.findOne({
+        where: {id: id},
+    }).then(pergunta =>{
+        if (pergunta != undefined){
+            res.render("pergunta",{
+                pergunta: pergunta});
+        }else{
+            res.redirect("/");
+        }
+    })
+})
 app.listen(3000,()=>{console.log('App rodando')});
