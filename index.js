@@ -4,6 +4,7 @@
 //sequelize + mysql2 (conexão banco de dados)
 const connection = require('./database/database');
 const Pergunta = require('./database/perguntas');
+const Resposta = require('./database/Resposta');
 //database
 connection.
 authenticate()
@@ -59,11 +60,36 @@ app.get("/pergunta/:id", (req, res)=>{
         where: {id: id},
     }).then(pergunta =>{
         if (pergunta != undefined){
-            res.render("pergunta",{
-                pergunta: pergunta});
+
+            Resposta.findAll({
+                where:{idPergunta: id},
+               order:[
+                   ['id','DESC']
+                ]  
+                }).then(respostas =>{
+                    res.render("pergunta",{
+                        pergunta: pergunta,
+                        respostas: respostas
+                    });
+                })
+
+           
         }else{
             res.redirect("/");
         }
     })
-})
+});
+
+app.post('/responder',(req, res)=>{
+    var corpo = req.body.corpo;
+    var idPergunta = req.body.idPergunta;
+   
+    Resposta.create({
+        corpo: corpo,
+        idPergunta: idPergunta
+    }).then(()=>{
+      
+        res.redirect('pergunta/'+idPergunta);
+    });
+});
 app.listen(3000,()=>{console.log('App rodando')});
